@@ -5,7 +5,7 @@ import datetime
 
 import streamlit as st
 
-HOME_DIR=os.environ['CODESPACE_VSCODE_FOLDER']
+HOME_DIR=os.getcwd()
 
 def load_csv(file):
     df = pd.read_csv(file)
