@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import datetime
+from scipy.stats import ttest_rel
 
 import streamlit as st
 
@@ -73,9 +74,14 @@ def analyze_pivot(df):
             col_mean = df[col].mean()
             col_std = df[col].std()
             st.write(f"{col} Mean: {round(col_mean,1)} Standard Deviation: {round(col_std,1)}")
+    df=df.dropna()
+    t_stat, p_value = ttest_rel(df['sugar_B'], df['sugar_F'])
+    st.write(f"First Follow-up t-statistic: {round(t_stat,2)} p-value: {round(p_value,2)}")
+    t_stat, p_value = ttest_rel(df['sugar_B'], df['sugar_L'])
+    st.write(f"Last Follow-up t-statistic: {round(t_stat,2)} p-value: {round(p_value,2)}")
 
-st.set_page_config(page_title="Data clean-up", page_icon="📹")
-st.markdown("# Data clean-up")
+st.set_page_config(page_title="Data analysis: Blood sugar", page_icon="📹")
+st.markdown("# Data analysis: Blood sugar")
 df=load_csv(f"{HOME_DIR}/syntheticData/synthDataTblLab.csv")
 st.markdown("## Original data")
 st.dataframe(df)
