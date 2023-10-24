@@ -36,17 +36,23 @@ def populate_bloodSugar(df, mean=125, std=20, min=70, max=200):
     df["bloodSugar"] = df["bloodSugar"].clip(min, max)
     df["bloodSugar"] = df["bloodSugar"].round().astype(int)
     return df
+
+
+def pivot_table(df):
+    pivot_df = pd.pivot_table(df, values='bloodSugar', index=['pid'], columns=['BvsFvsL'], aggfunc=np.mean)
+    pivot_df.columns = ['sugar_' + col for col in ['B', 'F', 'L','Other']]
+    return pivot_df
  
 def analyze_bloodSugar(df):
     baseline = df[df['BvsFvsL'] == 'B']
     first_followup = df[df['BvsFvsL'] == 'F']
     last_followup = df[df['BvsFvsL'] == 'L']
-    st.markdown("Baseline")
-    st.dataframe(baseline,hide_index=True)
-    st.markdown("First Follow-up")
-    st.dataframe(first_followup,hide_index=True)
-    st.markdown("Last Follow-up")
-    st.dataframe(last_followup,hide_index=True)
+    #st.markdown("Baseline")
+    #st.dataframe(baseline,hide_index=True)
+    #st.markdown("First Follow-up")
+    #st.dataframe(first_followup,hide_index=True)
+    #st.markdown("Last Follow-up")
+    #st.dataframe(last_followup,hide_index=True)
 
     baseline_mean = round(baseline['bloodSugar'].mean(), 1)
     baseline_std = round(baseline['bloodSugar'].std(), 1)
@@ -57,17 +63,16 @@ def analyze_bloodSugar(df):
     last_followup_mean = round(last_followup['bloodSugar'].mean(), 1)
     last_followup_std = round(last_followup['bloodSugar'].std(), 1)
 
-    st.markdown("## Glucose levels at Baseline")
-    st.write(f"Mean: {baseline_mean}")
-    st.write(f"Standard Deviation: {baseline_std}")
+    st.markdown(f"Glucose levels at Baseline Mean: {baseline_mean} Standard Deviation: {baseline_std}")
+    st.markdown(f"Glucose levels at First Follow-up Mean: {first_followup_mean} Standard Deviation: {first_followup_std}")
+    st.markdown(f"Glucose levels at Last Follow-up Mean: {last_followup_mean} Standard Deviation: {last_followup_std}")
 
-    st.markdown("## Glucose levels at First Follow-up")
-    st.write(f"Mean: {first_followup_mean}")
-    st.write(f"Standard Deviation: {first_followup_std}")
-
-    st.markdown("## Glucose levels at Last Follow-up")
-    st.write(f"Mean: {last_followup_mean}")
-    st.write(f"Standard Deviation: {last_followup_std}")
+def analyze_pivot(df):
+    for col in df.columns:
+        if col != "pid":
+            col_mean = df[col].mean()
+            col_std = df[col].std()
+            st.write(f"{col} Mean: {round(col_mean,1)} Standard Deviation: {round(col_std,1)}")
 
 st.set_page_config(page_title="Data clean-up", page_icon="📹")
 st.markdown("# Data clean-up")
@@ -81,6 +86,10 @@ df=populate_bloodSugar(df)
 st.markdown("## Updated data")
 st.dataframe(df)
 analyze_bloodSugar(df)
+pf=pivot_table(df)
+st.markdown("## Pivot table")
+st.dataframe(pf)
+analyze_pivot(pf)
 
 
 
