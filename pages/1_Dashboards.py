@@ -1,117 +1,59 @@
-# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-from urllib.error import URLError
-
-import pandas as pd
-import pydeck as pdk
-
 import streamlit as st
-from streamlit.hello.utils import show_code
+from streamlit_pills import pills
+import pandas as pd
+import os
+#
+#
+
+def load_csv():
+    FILENAME=os.getcwd()+"/data/"+"patient_visits.csv"
+    df=pd.read_csv(FILENAME,parse_dates=["visit_date"])
+    return df
 
 
-def mapping_demo():
-    @st.cache_data
-    def from_data_file(filename):
-        url = (
-            "https://raw.githubusercontent.com/streamlit/"
-            "example-data/master/hello/v1/%s" % filename
-        )
-        return pd.read_json(url)
-
-    try:
-        ALL_LAYERS = {
-            "Bike Rentals": pdk.Layer(
-                "HexagonLayer",
-                data=from_data_file("bike_rental_stats.json"),
-                get_position=["lon", "lat"],
-                radius=200,
-                elevation_scale=4,
-                elevation_range=[0, 1000],
-                extruded=True,
-            ),
-            "Bart Stop Exits": pdk.Layer(
-                "ScatterplotLayer",
-                data=from_data_file("bart_stop_stats.json"),
-                get_position=["lon", "lat"],
-                get_color=[200, 30, 0, 160],
-                get_radius="[exits]",
-                radius_scale=0.05,
-            ),
-            "Bart Stop Names": pdk.Layer(
-                "TextLayer",
-                data=from_data_file("bart_stop_stats.json"),
-                get_position=["lon", "lat"],
-                get_text="name",
-                get_color=[0, 0, 0, 200],
-                get_size=10,
-                get_alignment_baseline="'bottom'",
-            ),
-            "Outbound Flow": pdk.Layer(
-                "ArcLayer",
-                data=from_data_file("bart_path_stats.json"),
-                get_source_position=["lon", "lat"],
-                get_target_position=["lon2", "lat2"],
-                get_source_color=[200, 30, 0, 160],
-                get_target_color=[200, 30, 0, 160],
-                auto_highlight=True,
-                width_scale=0.0001,
-                get_width="outbound",
-                width_min_pixels=3,
-                width_max_pixels=30,
-            ),
-        }
-        st.sidebar.markdown("### Map Layers")
-        selected_layers = [
-            layer
-            for layer_name, layer in ALL_LAYERS.items()
-            if st.sidebar.checkbox(layer_name, True)
-        ]
-        if selected_layers:
-            st.pydeck_chart(
-                pdk.Deck(
-                    map_style=None,
-                    initial_view_state={
-                        "latitude": 37.76,
-                        "longitude": -122.4,
-                        "zoom": 11,
-                        "pitch": 50,
-                    },
-                    layers=selected_layers,
-                )
-            )
-        else:
-            st.error("Please choose at least one layer above.")
-    except URLError as e:
-        st.error(
-            """
-            **This demo requires internet access.**
-            Connection error: %s
-        """
-            % e.reason
-        )
-
-
-st.set_page_config(page_title="Mapping Demo", page_icon="🌍")
-st.markdown("# Mapping Demo")
-st.sidebar.header("Mapping Demo")
-st.write(
-    """This demo shows how to use
-[`st.pydeck_chart`](https://docs.streamlit.io/library/api-reference/charts/st.pydeck_chart)
-to display geospatial data."""
-)
-
-mapping_demo()
-
-show_code(mapping_demo)
+options = ["Patients-to-date", "Active patients", "New patients monthly", 
+           "Visits per month", "Visits per patient", "New vs returning patients" ]
+st.markdown("# Select a dashboard")
+selected = pills(" ", options,None)
+st.write("You selected:", selected)
+if(selected=="Patients-to-date"):
+    st.write("Patients-to-date")
+    st.write("This is the number of patients who have visited the clinic since the beginning of the year.")
+    df=load_csv()
+    df2=df.groupby("patient_id").count()
+    st.write(df2.shape[0])
+elif(selected=="Active patients"):
+    st.write("Active patients")
+    st.write("This is the number of patients who have visited the clinic in the last 6 months.")
+    df=load_csv()
+    df2=df.groupby("patient_id").count()
+    df3=df2[df2["visit_date"]>1]
+    st.write(df3.shape[0])
+elif(selected=="New patients monthly"):
+    st.write("New patients monthly")
+    st.write("This is the number of new patients who have visited the clinic each month.")
+    df=load_csv()
+    df2=df.groupby(["year","month"]).count()
+    st.line_chart(df2["patient_id"])
+elif(selected=="Visits per month"):
+    st.write("Visits per month")
+    st.write("This is the number of visits per month.")
+    df=load_csv()
+    df2=df.groupby(["year","month"]).count()
+    st.line_chart(df2["visit_date"])
+elif(selected=="Visits per patient"):
+    st.write("Visits per patient")
+    st.write("This is the number of visits per patient.")
+    df=load_csv()
+    df2=df.groupby("patient_id").count()
+    st.line_chart(df2["visit_date"])
+elif(selected=="New vs returning patients"):
+    st.write("New vs returning patients")
+    st.write("This is the number of new patients vs returning patients each month.")
+    df=load_csv()
+    df2=df.groupby(["year","month"]).count()
+    df3=df2[df2["patient_id"]==1]
+    df4=df2[df2["patient_id"]>1]
+    st.line_chart(df3["patient_id"],df4["patient_id"])
+else:
+    st.write("Unknown selection")

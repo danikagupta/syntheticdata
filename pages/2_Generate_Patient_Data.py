@@ -44,7 +44,7 @@ def in_the_past(month,year):
 def generate_patient_data_month(year,month,new_patients,visits_per_month):
     l=st.session_state.current_patient_id+1
     m=l+new_patients
-    print(f"Generating patient data for {year}-{month:02d} ({new_patients} patients) with visits per month {visits_per_month}")
+    # print(f"Generating patient data for {year}-{month:02d} ({new_patients} patients) with visits per month {visits_per_month}")
     for i in range(l,m):
         st.session_state.current_patient_id=i
         patient_id = f"PAT-{i:06d}"
@@ -84,21 +84,22 @@ def save_to_file():
     return
 
 def generate_patient_visit_data():
-    st.markdown("## Generate patient visit data")
-    st.markdown("### Patient data")
-    initial_patients=st.slider("Initial number of patients",min_value=1,max_value=1000,value=100)
-    growth_rate=st.slider("Growth rate of patients (per year)",min_value=0.0,max_value=1.0,value=0.1)
-    start_year=st.slider("Start year",min_value=2010,max_value=2023,value=2020)
-    start_month=st.slider("Start month",min_value=1,max_value=12,value=1)
-    visits_per_month=st.slider("Visits per month",min_value=0.0,max_value=1.0,value=0.1)
-    st.markdown("### Generate data")
-    if st.button("Generate patient visit data"):
+    #st.markdown("## Generate patient visit data")
+    #st.markdown("### Patient data")
+    initial_patients=st.sidebar.slider("Initial number of patients",min_value=1,max_value=1000,value=100)
+    growth_rate=st.sidebar.slider("Growth rate of patients (per year)",min_value=0.0,max_value=1.0,value=0.1)
+    start_year=st.sidebar.slider("Start year",min_value=2010,max_value=2023,value=2020)
+    #start_month=st.sidebar.slider("Start month",min_value=1,max_value=12,value=1)
+    start_month=1
+    visits_per_month=st.sidebar.slider("Visits per month",min_value=0.0,max_value=1.0,value=0.1)
+    #st.markdown("### Generate data")
+    if st.sidebar.button("Generate patient visit data"):
         reset_info()
         generate_patient_data(initial_patients, growth_rate, start_year, start_month, visits_per_month)
-        st.success("Patient visit data generated")
+        #st.success("Patient visit data generated")
 
-        st.markdown("### Patient visit data")
-        st.markdown(f"## Number of patients: {st.session_state.current_patient_id-MIN_PATIENT_ID}. "+
+        #st.markdown("### Patient visit data")
+        st.markdown(f"### Number of patients: {st.session_state.current_patient_id-MIN_PATIENT_ID}. "+
                 f"Number of records: {len(st.session_state.patient_visit_data)}")
         save_to_file()
         st.dataframe(st.session_state.patient_visit_data)

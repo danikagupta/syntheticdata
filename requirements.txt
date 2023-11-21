@@ -4,3 +4,6 @@ pandas
 pydeck
 streamlit
 scipy
+streamlit-pills
+matplotlib 
+seaborn
