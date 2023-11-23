@@ -7,3 +7,4 @@ scipy
 streamlit-pills
 matplotlib 
 seaborn
+plotly
