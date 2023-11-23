@@ -51,7 +51,7 @@ def generate_patient_data_month(year,month,new_patients,visits_per_month):
         visit_date=random_date_in_month(year,month)
         st.session_state.patient_visit_data.append([patient_id,visit_date.strftime("%Y-%m-%d"),random.randint(15,120)])
         new_month,new_year=increment_month(month,year)
-        while(in_the_past(new_month,new_year)):
+        while(in_the_past(new_month-1,new_year)):
             if(random.random()<visits_per_month):
                 visit_date=random_date_in_month(new_year,new_month)
                 st.session_state.patient_visit_data.append([patient_id,visit_date.strftime("%Y-%m-%d"),random.randint(15,120)])
