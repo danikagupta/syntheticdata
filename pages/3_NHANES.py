@@ -13,7 +13,7 @@ df_demo_pro=df_demo
 # Select Asians
 df_demo_pro=df_demo_pro[df_demo_pro['RIDRETH3']==6]
 df_demo_pro.to_csv(dir+'/data/nhanes/'+f_demo[:-4]+'_pro.csv',index=False)
-with st.expander(f"# Asians Only : Demographics {df_demo_pro.shape}"):
+with st.expander(f"# Aon-sians Only : Demographics {df_demo_pro.shape}"):
     st.dataframe(df_demo_pro,hide_index=True)
     st.download_button(label="Download CSV",data=df_demo_pro.to_csv(index=False),file_name='demo_pro.csv',mime='text/csv')
 
